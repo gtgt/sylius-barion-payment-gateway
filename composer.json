@@ -1,0 +1,72 @@
+{
+    "name": "goncziakos/sylius-barion-payment-gateway",
+    "type": "sylius-plugin",
+    "keywords": ["sylius", "sylius-plugin", "barion", "payment-gateway"],
+    "description": "Sylius Barion payment gateway plugin.",
+    "license": "MIT",
+    "require": {
+        "php": "^7.3",
+        "barion/barion-web-php": "1.4.2",
+        "sylius/sylius": "^1.8"
+    },
+    "require-dev": {
+        "lakion/mink-debug-extension": "^1.2.3",
+        "phpspec/phpspec": "^6.1",
+        "phpunit/phpunit": "^8.5",
+        "sensiolabs/security-checker": "^6.0",
+        "sylius-labs/coding-standard": "^3.1",
+        "symfony/browser-kit": "^4.4",
+        "symfony/debug-bundle": "^4.4|^5.0",
+        "symfony/dotenv": "^4.4|^5.0",
+        "symfony/intl": "^4.4|^5.0",
+        "symfony/web-profiler-bundle": "^4.4|^5.0",
+        "symfony/web-server-bundle": "^4.4|^5.0",
+        "vimeo/psalm": "3.11.4"
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "barion/barion-web-php",
+                "version": "1.4.2",
+                "dist": {
+                    "url": "https://github.com/barion/barion-web-php/archive/v1.4.2.zip",
+                    "type": "zip"
+                },
+                "source": {
+                    "url": "https://github.com/barion/barion-web-php.git",
+                    "type": "git",
+                    "reference": "v1.4.2"
+                },
+                "autoload": {
+                    "classmap": [ "library/" ],
+                    "files": [
+                        "library/common/Constants.php",
+                        "library/BarionClient.php"
+                    ]
+                }
+            }
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Goncziakos\\SyliusBarionPaymentGateway\\": "src/",
+            "Tests\\Acme\\SyliusExamplePlugin\\": "tests/"
+        }
+    },
+    "autoload-dev": {
+    },
+    "extra": {
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "post-install-cmd": [
+        ],
+        "post-update-cmd": [
+        ],
+        "post-create-project-cmd": [
+        ]
+    }
+}
