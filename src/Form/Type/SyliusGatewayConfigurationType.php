@@ -1,6 +1,6 @@
 <?php
 
-namespace Goncziakos\SyliusBarionPaymentGateway\Form\Type;
+namespace GoncziAkos\SyliusBarionPaymentGateway\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

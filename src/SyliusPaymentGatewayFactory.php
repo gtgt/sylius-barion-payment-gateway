@@ -1,10 +1,10 @@
 <?php
 
-namespace Goncziakos\SyliusBarionPaymentGateway;
+namespace GoncziAkos\SyliusBarionPaymentGateway;
 
-use Goncziakos\SyliusBarionPaymentGateway\Action\CaptureAction;
-use Goncziakos\SyliusBarionPaymentGateway\Action\NotifyAction;
-use Goncziakos\SyliusBarionPaymentGateway\Action\StatusAction;
+use GoncziAkos\SyliusBarionPaymentGateway\Action\CaptureAction;
+use GoncziAkos\SyliusBarionPaymentGateway\Action\NotifyAction;
+use GoncziAkos\SyliusBarionPaymentGateway\Action\StatusAction;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\GatewayFactory;
 

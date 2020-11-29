@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Goncziakos\SyliusBarionPaymentGateway;
+namespace GoncziAkos\SyliusBarionPaymentGateway;
 
 use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
 

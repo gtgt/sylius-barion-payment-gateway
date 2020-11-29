@@ -46,7 +46,7 @@ default:
         FriendsOfBehat\SymfonyExtension:
             bootstrap: tests/Application/config/bootstrap.php
             kernel:
-                class: Tests\Goncziakos\SyliusBarionPaymentGateway\Application\Kernel
+                class: Tests\GoncziAkos\SyliusBarionPaymentGateway\Application\Kernel
 
         FriendsOfBehat\VariadicExtension: ~
 

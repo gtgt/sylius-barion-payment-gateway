@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Goncziakos\SyliusBarionPaymentGateway\Action;
+namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
 
-use Goncziakos\SyliusBarionPaymentGateway\SyliusApi;
+use GoncziAkos\SyliusBarionPaymentGateway\SyliusApi;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;

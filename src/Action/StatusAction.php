@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Goncziakos\SyliusBarionPaymentGateway\Action;
+namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
 
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Exception\RequestNotSupportedException;

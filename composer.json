@@ -50,23 +50,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "Goncziakos\\SyliusBarionPaymentGateway\\": "src/",
-            "Tests\\Acme\\SyliusExamplePlugin\\": "tests/"
+            "GoncziAkos\\SyliusBarionPaymentGateway\\": "src/",
+            "Tests\\GoncziAkos\\SyliusBarionPaymentGateway\\": "tests/"
         }
-    },
-    "autoload-dev": {
-    },
-    "extra": {
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "scripts": {
-        "post-install-cmd": [
-        ],
-        "post-update-cmd": [
-        ],
-        "post-create-project-cmd": [
-        ]
     }
 }
