@@ -1,6 +1,5 @@
 <?php
 
-
 namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
 
 use Payum\Core\Action\ActionInterface;
@@ -10,8 +9,10 @@ use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Reply\HttpResponse;
 use Payum\Core\Request\Notify;
+use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Request\GetHumanStatus;
 use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface
 {
@@ -27,19 +28,18 @@ class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareIn
         RequestNotSupportedException::assertSupports($this, $request);
 
         /** @var SyliusPaymentInterface $payment */
-        $payment = $request->getModel();
+        $payment = $request->getFirstModel();
 
-        $details = $payment->getDetails();
+        $details = ArrayObject::ensureArrayObject($request->getModel());
 
         if ($details['status'] === GetHumanStatus::STATUS_PENDING) {
             $response = $this->api->getPaymentState($details['paymentId']);
             if ($response->RequestSuccessful && 'Succeeded' == $response->Status) {
                 $details['status'] = GetHumanStatus::STATUS_CAPTURED;
-                $payment->setDetails($details);
-                throw new HttpResponse('', 200);
+                throw new HttpResponse(null, Response::HTTP_OK);
             }
         }
-        throw new HttpResponse('', 403);
+        throw new HttpResponse(null, Response::HTTP_FORBIDDEN);
     }
 
     /**
@@ -49,7 +49,7 @@ class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareIn
     {
         return
             $request instanceof Notify &&
-            $request->getModel() instanceof SyliusPaymentInterface
+            $request->getModel() instanceof ArrayObject
         ;
     }
 }
