@@ -3,11 +3,9 @@
 
 namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
 
-use GoncziAkos\SyliusBarionPaymentGateway\SyliusApi;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Exception\UnsupportedApiException;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Reply\HttpRedirect;
@@ -20,11 +18,13 @@ use Payum\Core\Request\Capture;
 
 final class CaptureAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface, GenericTokenFactoryAwareInterface
 {
-    use GatewayAwareTrait, GenericTokenFactoryAwareTrait;
+    use GatewayAwareTrait, GenericTokenFactoryAwareTrait, SyliusApiTrait;
 
-    /** @var SyliusApi */
-    private $api;
-
+    /**
+     * {@inheritDoc}
+     *
+     * @param Capture $request
+     */
     public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
@@ -72,19 +72,14 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
         $payment->setDetails($details);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function supports($request): bool
     {
         return
             $request instanceof Capture &&
-            $request->getModel() instanceof SyliusPaymentInterface;
-    }
-
-    public function setApi($api): void
-    {
-        if (!$api instanceof SyliusApi) {
-            throw new UnsupportedApiException('Not supported. Expected an instance of ' . SyliusApi::class);
-        }
-
-        $this->api = $api;
+            $request->getModel() instanceof SyliusPaymentInterface
+        ;
     }
 }

@@ -3,13 +3,9 @@
 
 namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
 
-
-use GoncziAkos\SyliusBarionPaymentGateway\SyliusApi;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
-use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Exception\UnsupportedApiException;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Reply\HttpResponse;
@@ -19,10 +15,7 @@ use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
 
 class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface
 {
-    use GatewayAwareTrait;
-
-    /** @var SyliusApi */
-    private $api;
+    use GatewayAwareTrait, SyliusApiTrait;
 
     /**
      * {@inheritdoc}
@@ -35,15 +28,14 @@ class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareIn
 
         /** @var SyliusPaymentInterface $payment */
         $payment = $request->getModel();
-        $status = new GetHumanStatus($request->getModel());
-        $this->gateway->execute($status);
-        $details = ArrayObject::ensureArrayObject($payment);
 
-        if ($status->isPending()) {
+        $details = $payment->getDetails();
+
+        if ($details['status'] === GetHumanStatus::STATUS_PENDING) {
             $response = $this->api->getPaymentState($details['paymentId']);
             if ($response->RequestSuccessful && 'Succeeded' == $response->Status) {
                 $details['status'] = GetHumanStatus::STATUS_CAPTURED;
-                $status->markCaptured();
+                $payment->setDetails($details);
                 throw new HttpResponse('', 200);
             }
         }
@@ -53,19 +45,11 @@ class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareIn
     /**
      * {@inheritdoc}
      */
-    public function supports($request)
+    public function supports($request): bool
     {
         return
             $request instanceof Notify &&
-            $request->getModel() instanceof \ArrayAccess;
-    }
-
-    public function setApi($api): void
-    {
-        if (!$api instanceof SyliusApi) {
-            throw new UnsupportedApiException('Not supported. Expected an instance of ' . SyliusApi::class);
-        }
-
-        $this->api = $api;
+            $request->getModel() instanceof SyliusPaymentInterface
+        ;
     }
 }
