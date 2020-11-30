@@ -1,8 +1,4 @@
-<p align="center">
-    <a href="https://sylius.com" target="_blank">
-        <img src="https://demo.sylius.com/assets/shop/img/logo.png" />
-    </a>
-</p>
+<p align="center"><a href="https://sylius.com" target="_blank"><img src="https://demo.sylius.com/assets/shop/img/logo.png" /></a></p>
 
 <h1 align="center">Sylius Barion Payment Gateway Plugin</h1>
 
@@ -10,7 +6,7 @@
 
 1. Add to composer.json file:
 
-```josn
+```json
     "repositories": [
         {
             "type": "package",
@@ -38,6 +34,6 @@
     ],
 ```
 
-2. Run `composer create-project goncziakos/sylius-barion-payment-gateway:dev-master`.
+2. Run `composer create-project goncziakos/sylius-barion-payment-gateway`
 
 3. Add new Barion payment on admin
