@@ -46,7 +46,7 @@ final class StatusAction implements ActionInterface
     {
         return
             $request instanceof GetStatusInterface &&
-            $request->getModel() instanceof SyliusPaymentInterface
+            $request->getFirstModel() instanceof SyliusPaymentInterface
             ;
     }
 }

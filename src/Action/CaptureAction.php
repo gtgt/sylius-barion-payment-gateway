@@ -6,7 +6,6 @@ namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
 use GoncziAkos\SyliusBarionPaymentGateway\SyliusApi;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
-use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Exception\UnsupportedApiException;
 use Payum\Core\GatewayAwareInterface;
@@ -35,12 +34,9 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
 
         /** @var SyliusPaymentInterface $payment */
         $payment = $request->getModel();
-        $details = ArrayObject::ensureArrayObject($payment);
+        $details = $payment->getDetails();
 
-        $status = new GetHumanStatus($request->getModel());
-        $this->gateway->execute($status);
-
-        if ($status->isNew()) {
+        if (empty($details['status'])) {
             try {
                 $notifyToken = $this->tokenFactory->createNotifyToken(
                     $token->getGatewayName(),
@@ -57,24 +53,23 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
                 $details['status'] = GetHumanStatus::STATUS_FAILED;
             }
             if (isset($response) && $response->RequestSuccessful && 'Prepared' == $response->Status && $response->PaymentId) {
-                $status->markPending();
                 $details['status'] = GetHumanStatus::STATUS_PENDING;
                 $details['paymentId'] = urldecode($response->PaymentId);
                 $details['paymentUrl'] = urldecode($response->PaymentRedirectUrl);
+                $payment->setDetails($details);
                 throw new HttpRedirect($details['paymentUrl']);
             }
             $details['status'] = GetHumanStatus::STATUS_FAILED;
             if (isset($response)) {
                 $details['errors'] = $response->Errors;
             }
-            $status->markFailed();
-        } elseif ($status->isPending()) {
+        } elseif ($details['status'] === GetHumanStatus::STATUS_PENDING) {
             $response = $this->api->getPaymentState($details['paymentId']);
             if ($response->RequestSuccessful && 'Succeeded' == $response->Status) {
                 $details['status'] = GetHumanStatus::STATUS_CAPTURED;
-                $status->markCaptured();
             }
         }
+        $payment->setDetails($details);
     }
 
     public function supports($request): bool

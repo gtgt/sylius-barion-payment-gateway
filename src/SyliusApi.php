@@ -40,7 +40,7 @@ final class SyliusApi
 
     private function getBarionClient()
     {
-        return new \BarionClient($this->posKey, 2, $this->payee, $this->env);
+        return new \BarionClient($this->posKey, 2, $this->env);
     }
 
     public function preparePayment(SyliusPaymentInterface $payment, string $redirectUrl, string $callbackUrl)
@@ -53,8 +53,8 @@ final class SyliusApi
         $paymentRequest = new \PreparePaymentRequestModel();
         $paymentRequest->OrderNumber = $payment->getId();
         $paymentRequest->PaymentRequestId = $payment->getId() . '-' . date('y-m-d_h:i:s');
-        $paymentRequest->PayerHint = $payment->getOrder()->getUser()->getEmail();
-        $paymentRequest->Locale = $payment->getOrder()->getLocaleCode();
+        $paymentRequest->PayerHint = $payment->getOrder()->getCustomer()->getEmail();
+        $paymentRequest->Locale = str_replace('_', '-', $payment->getOrder()->getLocaleCode());
         $paymentRequest->Currency = $payment->getOrder()->getCurrencyCode();
 
         $shipmentAddress = $payment->getOrder()->getShippingAddress();
