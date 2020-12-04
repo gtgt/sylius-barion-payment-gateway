@@ -1,5 +1,3 @@
-<p align="center"><a href="https://sylius.com" target="_blank"><img src="https://demo.sylius.com/assets/shop/img/logo.png" /></a></p>
-
 <h1 align="center">Sylius Barion Payment Gateway Plugin</h1>
 
 ## Quickstart Installation
@@ -34,6 +32,6 @@
     ],
 ```
 
-2. Run `composer create-project goncziakos/sylius-barion-payment-gateway`
+2. Run `composer req goncziakos/sylius-barion-payment-gateway`
 
 3. Add new Barion payment on admin
