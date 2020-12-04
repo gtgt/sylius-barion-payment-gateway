@@ -9,6 +9,7 @@ use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Reply\HttpRedirect;
+use Payum\Core\Request\GetCurrency;
 use Payum\Core\Request\GetHumanStatus;
 use Payum\Core\Security\GenericTokenFactoryAwareInterface;
 use Payum\Core\Security\GenericTokenFactoryAwareTrait;
@@ -44,8 +45,14 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface, Gateway
                 );
                 $details['notifyToken'] = $notifyToken->getHash();
                 $details['notifyURL'] = $notifyToken->getTargetUrl();
+
+                $currency = new GetCurrency($payment->getCurrencyCode());
+                $this->gateway->execute($currency);
+                $divisor = pow(10, $currency->exp);
+
                 $response = $this->api->preparePayment(
                     $payment,
+                    $payment->getAmount() / $divisor,
                     $request->getToken()->getTargetUrl(),
                     $details['notifyURL']
                 );

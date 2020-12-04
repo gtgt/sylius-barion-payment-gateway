@@ -43,12 +43,12 @@ final class SyliusApi
         return new \BarionClient($this->posKey, 2, $this->env);
     }
 
-    public function preparePayment(SyliusPaymentInterface $payment, string $redirectUrl, string $callbackUrl)
+    public function preparePayment(SyliusPaymentInterface $payment, float $total, string $redirectUrl, string $callbackUrl)
     {
         $transaction = new \PaymentTransactionModel();
         $transaction->POSTransactionId = $payment->getId();
         $transaction->Payee = $this->payee;
-        $transaction->Total = $payment->getAmount();
+        $transaction->Total = $total;
 
         $paymentRequest = new \PreparePaymentRequestModel();
         $paymentRequest->OrderNumber = $payment->getId();
