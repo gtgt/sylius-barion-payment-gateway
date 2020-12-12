@@ -32,10 +32,12 @@ class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareIn
 
         $details = ArrayObject::ensureArrayObject($request->getModel());
 
-        if ($details['status'] === GetHumanStatus::STATUS_PENDING) {
+        if (isset($details['paymentId']) && $details['paymentId']) {
             $response = $this->api->getPaymentState($details['paymentId']);
-            if ($response->RequestSuccessful && 'Succeeded' == $response->Status) {
-                $details['status'] = GetHumanStatus::STATUS_CAPTURED;
+            if ($response->RequestSuccessful) {
+                if('Succeeded' == $response->Status and $details['status'] === GetHumanStatus::STATUS_PENDING) {
+                    $details['status'] = GetHumanStatus::STATUS_CAPTURED;
+                }
                 throw new HttpResponse(null, Response::HTTP_OK);
             }
         }
