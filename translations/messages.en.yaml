@@ -1,0 +1,31 @@
+sylius_barion:
+    ui:
+        barion_transactions: Barion transactions
+        barion_gateway_label: Barion
+        tab:
+            shop_payments: Shop payments
+            wallet_history: Wallet history
+        barion_payment_id: Barion payment ID
+        barion_status: Barion status
+        funding_source: Funding source
+        payment_method: Payment method
+        refresh_from_barion: Refresh from Barion
+        shop_payment_details: Barion shop payment
+        payment_summary: Payment summary
+        completed_at: Completed at
+        transactions: Transactions
+        transaction_id: Transaction ID
+        pos_transaction_id: POS transaction ID
+        wallet_history: Wallet history
+        wallet_history_details: Wallet history details
+        history_item: History item
+        detail_information: Detail information
+        open_shop_payment: Open shop payment
+        limit: Limit
+        load_more: Load more
+        in_progress: In progress
+        no_barion_payment_methods: No Barion payment methods are configured.
+    flash:
+        payment_refreshed: Payment state was refreshed from Barion.
+        payment_refresh_failed: Failed to refresh payment state from Barion.
+        missing_barion_payment_id: This payment has no Barion payment ID yet.

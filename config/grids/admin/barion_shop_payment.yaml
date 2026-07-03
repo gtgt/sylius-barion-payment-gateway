@@ -1,0 +1,123 @@
+sylius_grid:
+    grids:
+        sylius_barion_plugin_shop_payment:
+            driver:
+                name: doctrine/orm
+                options:
+                    class: "%sylius.model.payment.class%"
+                    repository:
+                        method: createBarionTransactionsQueryBuilder
+            sorting:
+                createdAt: desc
+            fields:
+                createdAt:
+                    type: twig
+                    label: sylius.ui.date
+                    sortable: createdAt
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/date.html.twig"
+                        vars:
+                            th_class: "w-1 text-center"
+                number:
+                    type: twig
+                    label: sylius.ui.order
+                    path: order
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/order_number.html.twig"
+                        vars:
+                            th_class: "w-1"
+                customer:
+                    type: twig
+                    label: sylius.ui.customer
+                    path: order.customer
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/customer.html.twig"
+                        vars:
+                            th_class: "w-100"
+                amount:
+                    type: twig
+                    label: sylius.ui.amount
+                    path: .
+                    options:
+                        template: "@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/grid/field/amount.html.twig"
+                        vars:
+                            th_class: "w-1 text-end"
+                            td_class: "text-end"
+                barionPaymentId:
+                    type: twig
+                    label: sylius_barion.ui.barion_payment_id
+                    path: .
+                    options:
+                        template: "@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/grid/field/barion_payment_id.html.twig"
+                barionStatus:
+                    type: twig
+                    label: sylius_barion.ui.barion_status
+                    path: .
+                    options:
+                        template: "@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/grid/field/barion_status.html.twig"
+                fundingSource:
+                    type: twig
+                    label: sylius_barion.ui.funding_source
+                    path: .
+                    options:
+                        template: "@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/grid/field/funding_source.html.twig"
+                state:
+                    type: twig
+                    label: sylius.ui.state
+                    options:
+                        template: "@SyliusAdmin/shared/grid/field/payment_state.html.twig"
+                        vars:
+                            th_class: "w-1 text-center"
+                            td_class: "text-center"
+            filters:
+                state:
+                    type: select
+                    label: sylius.ui.state
+                    form_options:
+                        choices:
+                            sylius.ui.cancelled: cancelled
+                            sylius.ui.completed: completed
+                            sylius.ui.failed: failed
+                            sylius.ui.new: new
+                            sylius.ui.processing: processing
+                            sylius.ui.refunded: refunded
+                createdAt:
+                    type: date
+                    label: sylius.ui.date
+                    options:
+                        field: createdAt
+                barionPaymentId:
+                    type: string
+                    label: sylius_barion.ui.barion_payment_id
+                    options:
+                        fields: [details]
+            actions:
+                item:
+                    show:
+                        type: show
+                        label: sylius.ui.show
+                        icon: tabler:eye
+                        options:
+                            link:
+                                route: sylius_barion_admin_transaction_shop_show
+                                parameters:
+                                    id: resource.id
+                    open_order:
+                        type: show
+                        label: sylius.ui.order
+                        icon: tabler:shopping-cart
+                        options:
+                            link:
+                                route: sylius_admin_order_show
+                                parameters:
+                                    id: resource.order.id
+                    refresh:
+                        type: update
+                        label: sylius_barion.ui.refresh_from_barion
+                        icon: tabler:refresh
+                        options:
+                            link:
+                                route: sylius_barion_admin_transaction_shop_refresh
+                                parameters:
+                                    id: resource.id
+                            method: POST

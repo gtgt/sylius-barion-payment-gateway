@@ -1,0 +1,20 @@
+{
+    "aliases": [],
+    "recipes": {
+        "gtgt/sylius-barion-payment-gateway": [
+            "2.0"
+        ]
+    },
+    "recipe-conflicts": [],
+    "versions": [],
+    "branch": "flex-recipe",
+    "is_contrib": false,
+    "_links": {
+        "repository": "github.com/gtgt/sylius-barion-payment-gateway",
+        "origin_template": "{package}:{version}@github.com/gtgt/sylius-barion-payment-gateway:flex-recipe",
+        "recipe_template": "https://raw.githubusercontent.com/gtgt/sylius-barion-payment-gateway/flex-recipe/{package_dotted}.{version}.json",
+        "recipe_template_relative": "{package_dotted}.{version}.json",
+        "archived_recipes_template": "https://raw.githubusercontent.com/gtgt/sylius-barion-payment-gateway/flex-recipe/archived/{package_dotted}/{ref}.json",
+        "archived_recipes_template_relative": "archived/{package_dotted}/{ref}.json"
+    }
+}

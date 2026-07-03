@@ -1,0 +1,5 @@
+sylius_payment:
+    resources:
+        payment:
+            classes:
+                repository: SyliusBarionPaymentGateway\Doctrine\ORM\PaymentRepository

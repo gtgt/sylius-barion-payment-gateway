@@ -1,92 +1,216 @@
 <?php
 
+declare(strict_types=1);
 
-namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
+namespace SyliusBarionPaymentGateway\Action;
 
-use Payum\Core\Action\ActionInterface;
-use Payum\Core\ApiAwareInterface;
+use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Reply\HttpRedirect;
-use Payum\Core\Request\GetCurrency;
-use Payum\Core\Request\GetHumanStatus;
-use Payum\Core\Security\GenericTokenFactoryAwareInterface;
-use Payum\Core\Security\GenericTokenFactoryAwareTrait;
-use Payum\Core\Security\TokenInterface;
-use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
 use Payum\Core\Request\Capture;
+use Payum\Core\Request\GetCurrency;
+use Payum\Core\Security\GenericTokenFactoryAwareInterface;
+use Payum\Core\Security\GenericTokenFactoryInterface;
+use Payum\Core\Security\TokenInterface;
+use Psr\Log\LoggerInterface;
+use Sylius\Component\Core\Model\PaymentInterface;
+use SyliusBarionPaymentGateway\Model\BarionPaymentStatus;
 
-final class CaptureAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface, GenericTokenFactoryAwareInterface
+final class CaptureAction extends BaseApiAwareAction implements GatewayAwareInterface, GenericTokenFactoryAwareInterface
 {
-    use GatewayAwareTrait, GenericTokenFactoryAwareTrait, SyliusApiTrait;
+    use GatewayAwareTrait;
+
+    private ?GenericTokenFactoryInterface $tokenFactory = null;
+
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
+    }
+
+    public function setGenericTokenFactory(?GenericTokenFactoryInterface $genericTokenFactory = null): void
+    {
+        $this->tokenFactory = $genericTokenFactory;
+    }
 
     /**
-     * {@inheritDoc}
-     *
      * @param Capture $request
      */
     public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
 
-        /** @var TokenInterface $token */
-        $token = $request->getToken();
+        $details = ArrayObject::ensureArrayObject($request->getModel());
+        $payment = $request->getFirstModel();
 
-        /** @var SyliusPaymentInterface $payment */
-        $payment = $request->getModel();
-        $details = $payment->getDetails();
-
-        if (empty($details['status'])) {
-            try {
-                $notifyToken = $this->tokenFactory->createNotifyToken(
-                    $token->getGatewayName(),
-                    $token->getDetails()
-                );
-                $details['notifyToken'] = $notifyToken->getHash();
-                $details['notifyURL'] = $notifyToken->getTargetUrl();
-
-                $currency = new GetCurrency($payment->getCurrencyCode());
-                $this->gateway->execute($currency);
-                $divisor = pow(10, $currency->exp);
-
-                $response = $this->api->preparePayment(
-                    $payment,
-                    $payment->getAmount() / $divisor,
-                    $request->getToken()->getTargetUrl(),
-                    $details['notifyURL']
-                );
-            } catch (\Exception $exception) {
-                $details['status'] = GetHumanStatus::STATUS_FAILED;
-            }
-            if (isset($response) && $response->RequestSuccessful && 'Prepared' == $response->Status && $response->PaymentId) {
-                $details['status'] = GetHumanStatus::STATUS_PENDING;
-                $details['paymentId'] = urldecode($response->PaymentId);
-                $details['paymentUrl'] = urldecode($response->PaymentRedirectUrl);
-                $payment->setDetails($details);
-                throw new HttpRedirect($details['paymentUrl']);
-            }
-            $details['status'] = GetHumanStatus::STATUS_FAILED;
-            if (isset($response)) {
-                $details['errors'] = $response->Errors;
-            }
-        } elseif ($details['status'] === GetHumanStatus::STATUS_PENDING) {
-            $response = $this->api->getPaymentState($details['paymentId']);
-            if ($response->RequestSuccessful && 'Succeeded' == $response->Status) {
-                $details['status'] = GetHumanStatus::STATUS_CAPTURED;
-            }
+        if (!$payment instanceof PaymentInterface) {
+            throw new \LogicException('Capture request must contain a payment model.');
         }
-        $payment->setDetails($details);
+
+        $status = (string) ($details['status'] ?? BarionPaymentStatus::NEW);
+
+        if (BarionPaymentStatus::AUTHORIZED === $status) {
+            $this->captureAuthorizedPayment($details, $payment);
+
+            return;
+        }
+
+        if (BarionPaymentStatus::RESERVED === $status) {
+            $this->finishReservedPayment($details, $payment);
+
+            return;
+        }
+
+        if (BarionPaymentStatus::NEW === $status || '' === $status) {
+            $this->startPayment($request, $details, $payment);
+
+            return;
+        }
+
+        if (BarionPaymentStatus::PENDING === $status && !empty($details['paymentId'])) {
+            $this->pollPaymentState($details, $payment);
+        }
+    }
+
+    public function supports($request): bool
+    {
+        return $request instanceof Capture && $request->getModel() instanceof \ArrayAccess;
     }
 
     /**
-     * {@inheritDoc}
+     * @param Capture $request
      */
-    public function supports($request): bool
+    private function startPayment(Capture $request, ArrayObject $details, PaymentInterface $payment): void
     {
-        return
-            $request instanceof Capture &&
-            $request->getModel() instanceof SyliusPaymentInterface
-        ;
+        /** @var TokenInterface $token */
+        $token = $request->getToken();
+
+        if (null === $this->tokenFactory) {
+            throw new \RuntimeException('Generic token factory is not configured.');
+        }
+
+        try {
+            $notifyToken = $this->tokenFactory->createNotifyToken($token->getGatewayName(), $token->getDetails());
+            $details['notifyToken'] = $notifyToken->getHash();
+            $details['notifyURL'] = $notifyToken->getTargetUrl();
+
+            $currency = new GetCurrency($payment->getCurrencyCode());
+            $this->gateway->execute($currency);
+
+            $divisor = 10 ** $currency->exp;
+            $response = $this->api->preparePayment(
+                $payment,
+                $payment->getAmount() / $divisor,
+                $token->getTargetUrl(),
+                (string) $details['notifyURL'],
+            );
+
+            BarionStatusMapper::applyPrepareResponse($details, $response);
+            $this->syncDetails($details, $payment);
+
+            if (!empty($details['paymentUrl'])) {
+                throw new HttpRedirect((string) $details['paymentUrl']);
+            }
+
+            $details['status'] = BarionPaymentStatus::FAILED;
+            $this->syncDetails($details, $payment);
+        } catch (HttpRedirect $redirect) {
+            throw $redirect;
+        } catch (\Throwable $exception) {
+            $this->logger->error('Barion payment preparation failed.', [
+                'payment_id' => $payment->getId(),
+                'exception' => $exception,
+            ]);
+
+            $details['status'] = BarionPaymentStatus::FAILED;
+            $details['error'] = $exception->getMessage();
+            $this->syncDetails($details, $payment);
+        }
+    }
+
+    private function pollPaymentState(ArrayObject $details, PaymentInterface $payment): void
+    {
+        try {
+            $response = $this->api->getPaymentState((string) $details['paymentId']);
+
+            if ($response->RequestSuccessful) {
+                BarionStatusMapper::applyPaymentState($details, $response);
+            }
+        } catch (\Throwable $exception) {
+            $this->logger->warning('Barion payment state polling failed.', [
+                'payment_id' => $payment->getId(),
+                'barion_payment_id' => $details['paymentId'] ?? null,
+                'exception' => $exception,
+            ]);
+        }
+
+        $this->syncDetails($details, $payment);
+    }
+
+    private function captureAuthorizedPayment(ArrayObject $details, PaymentInterface $payment): void
+    {
+        if (empty($details['paymentId']) || empty($details['transactions'])) {
+            return;
+        }
+
+        $transactions = $this->buildCaptureTransactions($details, $payment);
+        $response = $this->api->captureAuthorizedPayment((string) $details['paymentId'], $transactions);
+
+        if ($response->RequestSuccessful) {
+            $this->pollPaymentState($details, $payment);
+
+            return;
+        }
+
+        $details['status'] = BarionPaymentStatus::FAILED;
+        $details['error'] = 'Barion capture request failed.';
+        $this->syncDetails($details, $payment);
+    }
+
+    private function finishReservedPayment(ArrayObject $details, PaymentInterface $payment): void
+    {
+        if (empty($details['paymentId']) || empty($details['transactions'])) {
+            return;
+        }
+
+        $transactions = $this->buildCaptureTransactions($details, $payment);
+        $response = $this->api->finishReservation((string) $details['paymentId'], $transactions);
+
+        if ($response->RequestSuccessful) {
+            $this->pollPaymentState($details, $payment);
+
+            return;
+        }
+
+        $details['status'] = BarionPaymentStatus::FAILED;
+        $details['error'] = 'Barion finish reservation request failed.';
+        $this->syncDetails($details, $payment);
+    }
+
+    private function buildCaptureTransactions(ArrayObject $details, PaymentInterface $payment): array
+    {
+        $currency = new GetCurrency($payment->getCurrencyCode());
+        $this->gateway->execute($currency);
+        $total = $payment->getAmount() / (10 ** $currency->exp);
+
+        $transactions = [];
+        foreach ($details['transactions'] as $transaction) {
+            if (!is_array($transaction) || empty($transaction['transactionId'])) {
+                continue;
+            }
+
+            $transactions[] = [
+                'transactionId' => $transaction['transactionId'],
+                'total' => $total,
+            ];
+        }
+
+        return $transactions;
+    }
+
+    private function syncDetails(ArrayObject $details, PaymentInterface $payment): void
+    {
+        $payment->setDetails($details->getArrayCopy());
     }
 }

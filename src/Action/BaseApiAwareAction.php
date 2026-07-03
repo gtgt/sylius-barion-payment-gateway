@@ -1,20 +1,18 @@
 <?php
 
-namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
+declare(strict_types=1);
 
-use GoncziAkos\SyliusBarionPaymentGateway\SyliusApi;
+namespace SyliusBarionPaymentGateway\Action;
+
+use Payum\Core\Action\ActionInterface;
+use Payum\Core\ApiAwareInterface;
 use Payum\Core\Exception\UnsupportedApiException;
+use SyliusBarionPaymentGateway\SyliusApi;
 
-trait SyliusApiTrait
+abstract class BaseApiAwareAction implements ActionInterface, ApiAwareInterface
 {
-    /**
-     * @var SyliusApi
-     */
-    private $api;
+    protected SyliusApi $api;
 
-    /**
-     * {@inheritDoc}
-     */
     public function setApi($api): void
     {
         if (!$api instanceof SyliusApi) {

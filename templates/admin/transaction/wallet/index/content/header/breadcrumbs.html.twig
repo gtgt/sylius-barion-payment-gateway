@@ -1,0 +1,7 @@
+{% from '@SyliusAdmin/shared/helper/breadcrumbs.html.twig' import breadcrumbs %}
+
+{{ breadcrumbs([
+    { name: 'sylius.ui.dashboard', url: path('sylius_admin_dashboard'), active: false },
+    { name: 'sylius_barion.ui.barion_transactions'|trans, url: path('sylius_barion_admin_transaction_wallet_index'), active: false },
+    { name: 'sylius_barion.ui.wallet_history'|trans, active: true },
+]) }}

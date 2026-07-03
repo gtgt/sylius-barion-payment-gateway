@@ -1,0 +1,2 @@
+sylius_barion_payment_gateway:
+    resource: "@SyliusBarionPaymentGatewayPlugin/config/routes.yaml"

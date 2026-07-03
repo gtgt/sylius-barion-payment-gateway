@@ -1,57 +1,68 @@
 <?php
 
-namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
+declare(strict_types=1);
 
-use Payum\Core\Action\ActionInterface;
-use Payum\Core\ApiAwareInterface;
+namespace SyliusBarionPaymentGateway\Action;
+
+use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Reply\HttpResponse;
 use Payum\Core\Request\Notify;
-use Payum\Core\Bridge\Spl\ArrayObject;
-use Payum\Core\Request\GetHumanStatus;
-use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
+use Psr\Log\LoggerInterface;
+use Sylius\Component\Core\Model\PaymentInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class NotifyAction implements ActionInterface, ApiAwareInterface, GatewayAwareInterface
+final class NotifyAction extends BaseApiAwareAction implements GatewayAwareInterface
 {
-    use GatewayAwareTrait, SyliusApiTrait;
+    use GatewayAwareTrait;
+
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
+    }
 
     /**
-     * {@inheritdoc}
-     *
      * @param Notify $request
      */
     public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
 
-        /** @var SyliusPaymentInterface $payment */
         $payment = $request->getFirstModel();
+        if (!$payment instanceof PaymentInterface) {
+            throw new HttpResponse(null, Response::HTTP_FORBIDDEN);
+        }
 
         $details = ArrayObject::ensureArrayObject($request->getModel());
 
-        if (isset($details['paymentId']) && $details['paymentId']) {
-            $response = $this->api->getPaymentState($details['paymentId']);
-            if ($response->RequestSuccessful) {
-                if('Succeeded' == $response->Status and $details['status'] === GetHumanStatus::STATUS_PENDING) {
-                    $details['status'] = GetHumanStatus::STATUS_CAPTURED;
-                }
-                throw new HttpResponse(null, Response::HTTP_OK);
-            }
+        if (empty($details['paymentId'])) {
+            throw new HttpResponse(null, Response::HTTP_FORBIDDEN);
         }
-        throw new HttpResponse(null, Response::HTTP_FORBIDDEN);
+
+        try {
+            $response = $this->api->getPaymentState((string) $details['paymentId']);
+
+            if ($response->RequestSuccessful) {
+                BarionStatusMapper::applyPaymentState($details, $response);
+                $payment->setDetails($details->getArrayCopy());
+            }
+        } catch (\Throwable $exception) {
+            $this->logger->error('Barion IPN processing failed.', [
+                'payment_id' => $payment->getId(),
+                'barion_payment_id' => $details['paymentId'] ?? null,
+                'exception' => $exception,
+            ]);
+
+            throw new HttpResponse(null, Response::HTTP_FORBIDDEN);
+        }
+
+        throw new HttpResponse(null, Response::HTTP_OK);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports($request): bool
     {
-        return
-            $request instanceof Notify &&
-            $request->getModel() instanceof ArrayObject
-        ;
+        return $request instanceof Notify && $request->getModel() instanceof \ArrayAccess;
     }
 }

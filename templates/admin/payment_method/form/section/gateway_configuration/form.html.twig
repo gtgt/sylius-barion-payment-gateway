@@ -1,0 +1,29 @@
+{% set form = hookable_metadata.context.form.gatewayConfig.config %}
+
+<div class="col-12 col-md-6">
+    {{ form_row(form.pos_key, sylius_test_form_attribute('pos_key')) }}
+</div>
+<div class="col-12 col-md-6">
+    {{ form_row(form.payee, sylius_test_form_attribute('payee')) }}
+</div>
+<div class="col-12 col-md-6">
+    {{ form_row(form.env, sylius_test_form_attribute('env')) }}
+</div>
+<div class="col-12 col-md-6">
+    {{ form_row(form.payment_type, sylius_test_form_attribute('payment_type')) }}
+</div>
+<div class="col-12 col-md-6">
+    {{ form_row(form.funding_sources, sylius_test_form_attribute('funding_sources')) }}
+</div>
+<div class="col-12 col-md-6">
+    {{ form_row(form.payment_window, sylius_test_form_attribute('payment_window')) }}
+</div>
+<div class="col-12 col-md-6">
+    {{ form_row(form.delayed_capture_period, sylius_test_form_attribute('delayed_capture_period')) }}
+</div>
+<div class="col-12 col-md-6">
+    {{ form_row(form.reservation_period, sylius_test_form_attribute('reservation_period')) }}
+</div>
+<div class="col-12 col-md-6">
+    {{ form_row(form.initiate_recurrence, sylius_test_form_attribute('initiate_recurrence')) }}
+</div>

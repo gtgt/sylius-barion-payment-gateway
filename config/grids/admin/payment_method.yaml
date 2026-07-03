@@ -1,0 +1,17 @@
+sylius_grid:
+    grids:
+        sylius_admin_payment_method:
+            actions:
+                main:
+                    barion_transactions:
+                        type: links
+                        label: sylius_barion.ui.barion_gateway_label
+                        position: -100
+                        options:
+                            class: primary
+                            icon: "tabler:credit-card"
+                            links:
+                                transactions:
+                                    label: sylius_barion.ui.barion_transactions
+                                    route: sylius_barion_admin_transaction_shop_index
+                                    icon: 'tabler:history'

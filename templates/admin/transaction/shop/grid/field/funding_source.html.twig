@@ -1,0 +1,2 @@
+{% set details = data.details ?? {} %}
+{{ details.fundingSource|default(details.paymentMethod|default('-')) }}

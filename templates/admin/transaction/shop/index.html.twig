@@ -1,0 +1,30 @@
+{% extends '@SyliusAdmin/shared/layout/base.html.twig' %}
+
+{% block title %}{{ 'sylius_barion.ui.barion_transactions'|trans }} | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="page-wrapper">
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                {% include '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/header/breadcrumbs.html.twig' %}
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <h2 class="page-title">{{ 'sylius_barion.ui.barion_transactions'|trans }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <div class="container-xl">
+                {% include '@SyliusBarionPaymentGatewayPlugin/admin/transaction/_tabs.html.twig' with { active_tab: 'shop' } %}
+
+                {% set hookable_metadata = { context: { resources: resources } } %}
+
+                {% include '@SyliusAdmin/shared/crud/index/content/grid/filters.html.twig' %}
+                {% include '@SyliusAdmin/shared/crud/index/content/grid/data_table.html.twig' %}
+                {% include '@SyliusAdmin/shared/crud/index/content/grid/no_results.html.twig' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

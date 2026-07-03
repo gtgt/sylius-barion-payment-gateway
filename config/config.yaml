@@ -1,0 +1,15 @@
+imports:
+    - { resource: "resources/payment.yaml" }
+    - { resource: "grids/**/*.yaml" }
+    - { resource: "twig_hooks/**/*.yaml" }
+
+sylius_twig_hooks:
+    hooks:
+        'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.barion_payment':
+            form:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/payment_method/form/section/gateway_configuration/form.html.twig'
+                priority: -100
+        'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.barion_payment':
+            form:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/payment_method/form/section/gateway_configuration/form.html.twig'
+                priority: -100

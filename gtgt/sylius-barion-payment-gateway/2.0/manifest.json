@@ -1,0 +1,17 @@
+{
+    "bundles": {
+        "SyliusBarionPaymentGateway\\SyliusBarionPaymentGatewayPlugin": ["all"]
+    },
+    "copy-from-package": {
+        "config/install/routes/sylius_barion.yaml": "%CONFIG_DIR%/routes/sylius_barion.yaml"
+    },
+    "post-install-output": [
+        "<bg=blue;fg=white>                                                      </>",
+        "<bg=blue;fg=white>  Barion payment gateway — Flex recipe applied       </>",
+        "<bg=blue;fg=white>                                                      </>",
+        "",
+        "  * Routes were copied to <comment>config/routes/sylius_barion.yaml</comment>",
+        "  * Register the bundle in <comment>config/bundles.php</comment> if it is not there yet",
+        ""
+    ]
+}

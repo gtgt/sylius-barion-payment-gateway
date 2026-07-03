@@ -1,0 +1,20 @@
+{% set active_tab = active_tab|default('shop') %}
+
+<ul class="nav nav-tabs card-header-tabs mb-3">
+    <li class="nav-item">
+        <a
+            class="nav-link {{ active_tab == 'shop' ? 'active' : '' }}"
+            href="{{ path('sylius_barion_admin_transaction_shop_index') }}"
+        >
+            {{ 'sylius_barion.ui.tab.shop_payments'|trans }}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a
+            class="nav-link {{ active_tab == 'wallet' ? 'active' : '' }}"
+            href="{{ path('sylius_barion_admin_transaction_wallet_index') }}"
+        >
+            {{ 'sylius_barion.ui.tab.wallet_history'|trans }}
+        </a>
+    </li>
+</ul>

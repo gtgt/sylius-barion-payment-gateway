@@ -1,0 +1,11 @@
+sylius_twig_hooks:
+    hooks:
+        'sylius_barion.admin.transaction.shop.index.content':
+            tabs:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/tabs.html.twig'
+                priority: 100
+
+        'sylius_barion.admin.transaction.shop.index.content.header':
+            breadcrumbs:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/header/breadcrumbs.html.twig'
+                priority: 100

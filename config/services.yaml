@@ -1,0 +1,41 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    SyliusBarionPaymentGateway\:
+        resource: '../src/'
+        exclude:
+            - '../src/SyliusBarionPaymentGatewayPlugin.php'
+            - '../src/DependencyInjection/'
+
+    sylius_barion.payum.gateway_factory.builder:
+        class: Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder
+        arguments:
+            - SyliusBarionPaymentGateway\SyliusPaymentGatewayFactory
+        tags:
+            - { name: payum.gateway_factory_builder, factory: barion_payment }
+
+    SyliusBarionPaymentGateway\Action\CaptureAction:
+        tags:
+            - { name: payum.action, factory: barion_payment, alias: payum.action.capture }
+
+    SyliusBarionPaymentGateway\Action\StatusAction:
+        tags:
+            - { name: payum.action, factory: barion_payment, alias: payum.action.status }
+
+    SyliusBarionPaymentGateway\Action\NotifyAction:
+        tags:
+            - { name: payum.action, factory: barion_payment, alias: payum.action.notify }
+
+    SyliusBarionPaymentGateway\Action\RefundAction:
+        tags:
+            - { name: payum.action, factory: barion_payment, alias: payum.action.refund }
+
+    SyliusBarionPaymentGateway\Action\CancelAuthorizationAction:
+        tags:
+            - { name: payum.action, factory: barion_payment, alias: payum.action.cancel }
+
+    SyliusBarionPaymentGateway\Menu\AdminMenuListener:
+        tags:
+            - { name: kernel.event_listener, event: sylius.menu.admin.main, method: buildMenu }

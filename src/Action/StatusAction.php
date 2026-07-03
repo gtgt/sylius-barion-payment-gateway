@@ -1,61 +1,95 @@
 <?php
 
+declare(strict_types=1);
 
-namespace GoncziAkos\SyliusBarionPaymentGateway\Action;
+namespace SyliusBarionPaymentGateway\Action;
 
-use Payum\Core\Action\ActionInterface;
+use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Request\GetHumanStatus;
-use Payum\Core\Request\GetStatusInterface;
-use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
+use Payum\Core\GatewayAwareInterface;
+use Payum\Core\GatewayAwareTrait;
+use Psr\Log\LoggerInterface;
+use Sylius\Bundle\PayumBundle\Request\GetStatus;
+use Sylius\Component\Core\Model\PaymentInterface;
+use SyliusBarionPaymentGateway\Model\BarionPaymentStatus;
 
-final class StatusAction implements ActionInterface
+final class StatusAction extends BaseApiAwareAction implements GatewayAwareInterface
 {
+    use GatewayAwareTrait;
+
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
+    }
+
     /**
-     * {@inheritDoc}
-     *
-     * @param GetStatusInterface $request
+     * @param GetStatus $request
      */
     public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
 
-        /** @var SyliusPaymentInterface $payment */
         $payment = $request->getFirstModel();
+        if (!$payment instanceof PaymentInterface) {
+            $request->markUnknown();
 
-        $details = $payment->getDetails();
+            return;
+        }
 
-        $status = $details['status'] ?? null;
+        $details = ArrayObject::ensureArrayObject($payment->getDetails());
 
-        switch ($status) {
-            case null:
-            case GetHumanStatus::STATUS_NEW:
-                $request->markNew();
-                break;
-            case GetHumanStatus::STATUS_PENDING:
-                $request->markPending();
-                break;
-            case GetHumanStatus::STATUS_CAPTURED:
-                $request->markCaptured();
-                break;
-            case GetHumanStatus::STATUS_FAILED:
-                $request->markFailed();
-                break;
-            case GetHumanStatus::STATUS_CANCELED:
-                $request->markCanceled();
-                break;
-            default:
-                $request->markUnknown();
+        if (!empty($details['paymentId']) && $this->shouldPollRemoteState((string) ($details['status'] ?? ''))) {
+            $this->pollRemoteState($details, $payment);
+        }
+
+        $this->markRequestFromDetails($request, (string) ($details['status'] ?? BarionPaymentStatus::NEW));
+    }
+
+    public function supports($request): bool
+    {
+        return $request instanceof GetStatus && $request->getFirstModel() instanceof PaymentInterface;
+    }
+
+    private function shouldPollRemoteState(string $status): bool
+    {
+        return in_array($status, [
+            BarionPaymentStatus::PENDING,
+            BarionPaymentStatus::AUTHORIZED,
+            BarionPaymentStatus::RESERVED,
+            BarionPaymentStatus::PARTIAL,
+            BarionPaymentStatus::UNKNOWN,
+        ], true);
+    }
+
+    private function pollRemoteState(ArrayObject $details, PaymentInterface $payment): void
+    {
+        try {
+            $response = $this->api->getPaymentState((string) $details['paymentId']);
+
+            if ($response->RequestSuccessful) {
+                BarionStatusMapper::applyPaymentState($details, $response);
+                $payment->setDetails($details->getArrayCopy());
+            }
+        } catch (\Throwable $exception) {
+            $this->logger->warning('Barion status polling failed.', [
+                'payment_id' => $payment->getId(),
+                'barion_payment_id' => $details['paymentId'] ?? null,
+                'exception' => $exception,
+            ]);
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function supports($request): bool
+    private function markRequestFromDetails(GetStatus $request, string $status): void
     {
-        return
-            $request instanceof GetStatusInterface &&
-            $request->getFirstModel() instanceof SyliusPaymentInterface;
+        match ($status) {
+            BarionPaymentStatus::NEW => $request->markNew(),
+            BarionPaymentStatus::PENDING, BarionPaymentStatus::RESERVED => $request->markPending(),
+            BarionPaymentStatus::AUTHORIZED => $request->markAuthorized(),
+            BarionPaymentStatus::CAPTURED => $request->markCaptured(),
+            BarionPaymentStatus::FAILED => $request->markFailed(),
+            BarionPaymentStatus::CANCELED => $request->markCanceled(),
+            BarionPaymentStatus::EXPIRED => $request->markExpired(),
+            default => $request->markUnknown(),
+        };
     }
 }
