@@ -3,55 +3,11 @@
 {% block title %}{{ 'sylius_barion.ui.wallet_history_details'|trans }} | {{ parent() }}{% endblock %}
 
 {% block body %}
-    <div class="page-wrapper">
-        <div class="page-header d-print-none">
-            <div class="container-xl">
-                {% include '@SyliusBarionPaymentGatewayPlugin/admin/transaction/wallet/show/content/header/breadcrumbs.html.twig' %}
-                <div class="row g-2 align-items-center">
-                    <div class="col">
-                        <h2 class="page-title">{{ 'sylius_barion.ui.wallet_history_details'|trans }}</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="page-body">
-            <div class="container-xl">
-                {% if apiError %}
-                    <div class="alert alert-warning">{{ apiError }}</div>
-                {% endif %}
-
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <h3 class="card-title">{{ 'sylius_barion.ui.history_item'|trans }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <dl class="row">
-                            <dt class="col-3">{{ 'sylius.ui.id'|trans }}</dt>
-                            <dd class="col-9 font-monospace">{{ historyItemId }}</dd>
-                            <dt class="col-3">{{ 'sylius.ui.payment_method'|trans }}</dt>
-                            <dd class="col-9">{{ selectedPaymentMethod.name }}</dd>
-                        </dl>
-
-                        {% if linkedPayment %}
-                            <a href="{{ path('sylius_barion_admin_transaction_shop_show', { id: linkedPayment.id }) }}" class="btn btn-primary">
-                                {{ 'sylius_barion.ui.open_shop_payment'|trans }}
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-
-                {% if detailResponse %}
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">{{ 'sylius_barion.ui.detail_information'|trans }}</h3>
-                        </div>
-                        <div class="card-body">
-                            <pre class="mb-0">{{ detailResponse.detailInformation|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    {% hook ['sylius_barion.admin.transaction.wallet.show', 'sylius_admin.common.show'] with {
+        historyItemId: historyItemId,
+        selectedPaymentMethod: selectedPaymentMethod,
+        detailResponse: detailResponse,
+        linkedPayment: linkedPayment,
+        apiError: apiError,
+    } %}
 {% endblock %}

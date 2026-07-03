@@ -1,0 +1,7 @@
+<div class="page-body">
+    <div class="container-xl">
+        {% include '@SyliusBarionPaymentGatewayPlugin/admin/transaction/_tabs.html.twig' with { active_tab: 'shop' } %}
+
+        {% hook 'grid' %}
+    </div>
+</div>

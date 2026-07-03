@@ -1,11 +1,45 @@
 sylius_twig_hooks:
     hooks:
         'sylius_barion.admin.transaction.shop.index.content':
-            tabs:
-                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/tabs.html.twig'
+            grid:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/grid.html.twig'
                 priority: 100
 
         'sylius_barion.admin.transaction.shop.index.content.header':
             breadcrumbs:
                 template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/header/breadcrumbs.html.twig'
                 priority: 100
+
+        'sylius_barion.admin.transaction.shop.index.content.header.title_block':
+            title:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/header/title.html.twig'
+                priority: 100
+
+        'sylius_barion.admin.transaction.shop.index.content.grid':
+            filters:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/grid/filters.html.twig'
+                priority: 200
+            data_table:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/grid/data_table.html.twig'
+                priority: 100
+            no_data_block:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/index/content/grid/no_results.html.twig'
+                priority: 0
+
+        'sylius_barion.admin.transaction.shop.show.content':
+            main:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/show/content/main.html.twig'
+                priority: 50
+
+        'sylius_barion.admin.transaction.shop.show.content.header':
+            breadcrumbs:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/show/content/header/breadcrumbs.html.twig'
+                priority: 100
+
+        'sylius_barion.admin.transaction.shop.show.content.header.title_block':
+            title:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/show/content/header/title_block/title.html.twig'
+                priority: 100
+            actions:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/shop/show/content/header/title_block/actions.html.twig'
+                priority: 0

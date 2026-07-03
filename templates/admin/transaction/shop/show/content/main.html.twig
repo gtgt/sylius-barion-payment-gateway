@@ -1,0 +1,86 @@
+{% set ctx = hookable_metadata.context.all() %}
+{% set payment = ctx.payment %}
+{% set paymentState = ctx.paymentState|default(null) %}
+{% set apiError = ctx.apiError|default(null) %}
+
+<div class="page-body">
+    <div class="container-xl">
+{% if apiError %}
+    <div class="alert alert-warning">{{ apiError }}</div>
+{% endif %}
+
+{% set details = payment.details %}
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title">{{ 'sylius_barion.ui.payment_summary'|trans }}</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-5">{{ 'sylius.ui.id'|trans }}</dt>
+                    <dd class="col-7">{{ payment.id }}</dd>
+                    <dt class="col-5">{{ 'sylius_barion.ui.barion_payment_id'|trans }}</dt>
+                    <dd class="col-7 font-monospace">{{ details.paymentId|default('-') }}</dd>
+                    <dt class="col-5">{{ 'sylius_barion.ui.barion_status'|trans }}</dt>
+                    <dd class="col-7">{{ details.barionStatus|default(details.status|default('-')) }}</dd>
+                    <dt class="col-5">{{ 'sylius.ui.state'|trans }}</dt>
+                    <dd class="col-7">{{ payment.state }}</dd>
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-5">{{ 'sylius.ui.amount'|trans }}</dt>
+                    <dd class="col-7">{{ money.format(payment.amount, payment.currencyCode) }}</dd>
+                    <dt class="col-5">{{ 'sylius_barion.ui.funding_source'|trans }}</dt>
+                    <dd class="col-7">{{ details.fundingSource|default('-') }}</dd>
+                    <dt class="col-5">{{ 'sylius_barion.ui.payment_method'|trans }}</dt>
+                    <dd class="col-7">{{ details.paymentMethod|default('-') }}</dd>
+                    <dt class="col-5">{{ 'sylius_barion.ui.completed_at'|trans }}</dt>
+                    <dd class="col-7">{{ details.completedAt|default('-') }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if paymentState and paymentState.Transactions is not empty %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ 'sylius_barion.ui.transactions'|trans }}</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table card-table table-vcenter">
+                <thead>
+                    <tr>
+                        <th>{{ 'sylius_barion.ui.transaction_id'|trans }}</th>
+                        <th>{{ 'sylius_barion.ui.pos_transaction_id'|trans }}</th>
+                        <th>{{ 'sylius.ui.status'|trans }}</th>
+                        <th class="text-end">{{ 'sylius.ui.amount'|trans }}</th>
+                        <th>{{ 'sylius.ui.date'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in paymentState.Transactions %}
+                        <tr>
+                            <td class="font-monospace">{{ transaction.TransactionId|default('-') }}</td>
+                            <td>{{ transaction.POSTransactionId|default('-') }}</td>
+                            <td>{{ transaction.Status.value|default(transaction.Status) }}</td>
+                            <td class="text-end">
+                                {% if transaction.Total is not null %}
+                                    {{ transaction.Total }} {{ transaction.Currency.value|default(transaction.Currency) }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>{{ transaction.TransactionTime|default('-') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+    </div>
+</div>

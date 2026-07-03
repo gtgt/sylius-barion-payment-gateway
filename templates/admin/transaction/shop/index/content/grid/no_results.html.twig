@@ -1,0 +1,15 @@
+{% set resources = hookable_metadata.context.all().resources|default(null) %}
+
+{% if resources.data is defined and resources.data|length == 0 %}
+    <div class="card">
+        <div class="empty">
+            <div class="empty-img">
+                <img src="{{ asset('build/admin/images/no_data.svg', 'admin') }}" style="width: 250px" alt="{{ 'sylius.ui.no_results'|trans }}">
+            </div>
+            <p class="empty-title">{{ 'sylius.ui.no_results'|trans }}</p>
+            <p class="empty-subtitle text-secondary">
+                {{ 'sylius.ui.no_results_adjust_your_search'|trans }}
+            </p>
+        </div>
+    </div>
+{% endif %}

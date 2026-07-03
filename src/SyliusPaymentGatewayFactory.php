@@ -14,6 +14,7 @@ final class SyliusPaymentGatewayFactory extends GatewayFactory
         $config->defaults([
             'payum.factory_name' => 'barion_payment',
             'payum.factory_title' => 'Barion Payment',
+            'env' => 'test',
         ]);
 
         $config['payum.api'] = static function (ArrayObject $config): SyliusApi {

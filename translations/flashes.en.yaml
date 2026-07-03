@@ -1,0 +1,3 @@
+sylius_barion.flash.payment_refreshed: Payment state was refreshed from Barion.
+sylius_barion.flash.payment_refresh_failed: Failed to refresh payment state from Barion.
+sylius_barion.flash.missing_barion_payment_id: This payment has no Barion payment ID yet.

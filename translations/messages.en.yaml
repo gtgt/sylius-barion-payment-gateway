@@ -1,4 +1,6 @@
 sylius_barion:
+    gateway_factory:
+        barion_payment: Barion Payment
     ui:
         barion_transactions: Barion transactions
         barion_gateway_label: Barion
@@ -25,6 +27,34 @@ sylius_barion:
         load_more: Load more
         in_progress: In progress
         no_barion_payment_methods: No Barion payment methods are configured.
+    form:
+        gateway_config:
+            label: Barion Payment Gateway configuration
+            pos_key: POS key
+            pos_key_help: Secret POS key from the Barion merchant portal.
+            payee: Payee email
+            payee_help: Barion wallet email that receives the payment.
+            env: Environment
+            env_test: Test (sandbox)
+            env_prod: Production
+            payment_type: Payment type
+            payment_type_immediate: Immediate
+            payment_type_delayed_capture: Delayed capture
+            payment_type_reservation: Reservation
+            funding_sources: Allowed funding sources
+            funding_source_all: All
+            funding_source_bankcard: Bank card
+            funding_source_balance: Barion wallet
+            funding_source_bank_transfer: Bank transfer
+            funding_source_apple_pay: Apple Pay
+            funding_source_google_pay: Google Pay
+            payment_window: Payment window
+            payment_window_help: ISO-8601 duration, e.g. 00:30:00.
+            delayed_capture_period: Delayed capture period
+            delayed_capture_period_help: ISO-8601 period, e.g. P7D.
+            reservation_period: Reservation period
+            reservation_period_help: ISO-8601 period, e.g. P7D.
+            initiate_recurrence: Initiate recurring payment
     flash:
         payment_refreshed: Payment state was refreshed from Barion.
         payment_refresh_failed: Failed to refresh payment state from Barion.

@@ -1,0 +1,61 @@
+sylius_barion:
+    gateway_factory:
+        barion_payment: Barion fizetés
+    ui:
+        barion_transactions: Barion tranzakciók
+        barion_gateway_label: Barion
+        tab:
+            shop_payments: Webáruház fizetések
+            wallet_history: Pénztár előzmények
+        barion_payment_id: Barion fizetési azonosító
+        barion_status: Barion állapot
+        funding_source: Finanszírozási forrás
+        payment_method: Fizetési mód
+        refresh_from_barion: Frissítés Barionból
+        shop_payment_details: Barion webáruház fizetés
+        payment_summary: Fizetés összegzése
+        completed_at: Befejezve
+        transactions: Tranzakciók
+        transaction_id: Tranzakció azonosító
+        pos_transaction_id: POS tranzakció azonosító
+        wallet_history: Pénztár előzmények
+        wallet_history_details: Pénztár előzmény részletei
+        history_item: Előzmény elem
+        detail_information: Részletes információ
+        open_shop_payment: Webáruház fizetés megnyitása
+        limit: Limit
+        load_more: Továbbiak betöltése
+        in_progress: Folyamatban
+        no_barion_payment_methods: Nincs beállított Barion fizetési mód.
+    form:
+        gateway_config:
+            label: Barion fizetési átjáró beállítások
+            pos_key: POS kulcs
+            pos_key_help: Titkos POS kulcs a Barion kereskedői portálból.
+            payee: Kedvezményezett e-mail címe
+            payee_help: A Barion tárca e-mail címe, amely a fizetést fogadja.
+            env: Környezet
+            env_test: Teszt (sandbox)
+            env_prod: Éles (production)
+            payment_type: Fizetés típusa
+            payment_type_immediate: Azonnali
+            payment_type_delayed_capture: Késleltetett terhelés
+            payment_type_reservation: Foglalás
+            funding_sources: Engedélyezett finanszírozási források
+            funding_source_all: Összes
+            funding_source_bankcard: Bankkártya
+            funding_source_balance: Barion tárca
+            funding_source_bank_transfer: Banki átutalás
+            funding_source_apple_pay: Apple Pay
+            funding_source_google_pay: Google Pay
+            payment_window: Fizetési ablak
+            payment_window_help: ISO-8601 időtartam, pl. 00:30:00.
+            delayed_capture_period: Késleltetett terhelés időtartama
+            delayed_capture_period_help: ISO-8601 időtartam, pl. P7D.
+            reservation_period: Foglalás időtartama
+            reservation_period_help: ISO-8601 időtartam, pl. P7D.
+            initiate_recurrence: Ismétlődő fizetés indítása
+    flash:
+        payment_refreshed: A fizetés állapota frissítve lett a Barionból.
+        payment_refresh_failed: Nem sikerült frissíteni a fizetés állapotát a Barionból.
+        missing_barion_payment_id: Ennek a fizetésnek még nincs Barion fizetési azonosítója.

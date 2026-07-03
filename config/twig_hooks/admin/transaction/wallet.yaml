@@ -1,0 +1,33 @@
+sylius_twig_hooks:
+    hooks:
+        'sylius_barion.admin.transaction.wallet.index.content':
+            grid:
+                enabled: false
+            main:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/wallet/index/content/main.html.twig'
+                priority: 100
+
+        'sylius_barion.admin.transaction.wallet.index.content.header':
+            breadcrumbs:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/wallet/index/content/header/breadcrumbs.html.twig'
+                priority: 100
+
+        'sylius_barion.admin.transaction.wallet.index.content.header.title_block':
+            title:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/wallet/index/content/header/title.html.twig'
+                priority: 100
+
+        'sylius_barion.admin.transaction.wallet.show.content':
+            main:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/wallet/show/content/main.html.twig'
+                priority: 50
+
+        'sylius_barion.admin.transaction.wallet.show.content.header':
+            breadcrumbs:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/wallet/show/content/header/breadcrumbs.html.twig'
+                priority: 100
+
+        'sylius_barion.admin.transaction.wallet.show.content.header.title_block':
+            title:
+                template: '@SyliusBarionPaymentGatewayPlugin/admin/transaction/wallet/show/content/header/title_block/title.html.twig'
+                priority: 100

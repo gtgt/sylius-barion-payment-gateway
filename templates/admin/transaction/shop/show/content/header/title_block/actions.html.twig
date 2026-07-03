@@ -1,0 +1,14 @@
+{% set payment = hookable_metadata.context.all().payment %}
+
+<div class="btn-list">
+    <form method="post" action="{{ path('sylius_barion_admin_transaction_shop_refresh', { id: payment.id }) }}">
+        <button type="submit" class="btn btn-primary">
+            {{ 'sylius_barion.ui.refresh_from_barion'|trans }}
+        </button>
+    </form>
+    {% if payment.order %}
+        <a href="{{ path('sylius_admin_order_show', { id: payment.order.id }) }}" class="btn">
+            {{ 'sylius.ui.order'|trans }}
+        </a>
+    {% endif %}
+</div>
