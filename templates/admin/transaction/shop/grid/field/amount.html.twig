@@ -1,1 +1,3 @@
+{% import '@SyliusAdmin/shared/helper/money.html.twig' as money %}
+
 <span class="text-end d-block">{{ money.format(data.amount, data.currencyCode) }}</span>
