@@ -8,6 +8,7 @@ services:
         exclude:
             - '../src/SyliusBarionPaymentGatewayPlugin.php'
             - '../src/DependencyInjection/'
+            - '../src/Action/'
 
     sylius_barion.payum.gateway_factory.builder:
         class: Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder
@@ -16,25 +17,41 @@ services:
         tags:
             - { name: payum.gateway_factory_builder, factory: barion_payment }
 
-    SyliusBarionPaymentGateway\Action\CaptureAction:
+    sylius_barion.payum.action.convert_payment:
+        class: SyliusBarionPaymentGateway\Action\ConvertPaymentAction
+        public: true
         tags:
-            - { name: payum.action, factory: barion_payment, alias: payum.action.capture }
+            - { name: payum.action, factory: barion_payment, alias: convert_payment }
 
-    SyliusBarionPaymentGateway\Action\StatusAction:
+    sylius_barion.payum.action.capture:
+        class: SyliusBarionPaymentGateway\Action\CaptureAction
+        public: true
         tags:
-            - { name: payum.action, factory: barion_payment, alias: payum.action.status }
+            - { name: payum.action, factory: barion_payment, alias: capture }
 
-    SyliusBarionPaymentGateway\Action\NotifyAction:
+    sylius_barion.payum.action.status:
+        class: SyliusBarionPaymentGateway\Action\StatusAction
+        public: true
         tags:
-            - { name: payum.action, factory: barion_payment, alias: payum.action.notify }
+            - { name: payum.action, factory: barion_payment, alias: status }
 
-    SyliusBarionPaymentGateway\Action\RefundAction:
+    sylius_barion.payum.action.notify:
+        class: SyliusBarionPaymentGateway\Action\NotifyAction
+        public: true
         tags:
-            - { name: payum.action, factory: barion_payment, alias: payum.action.refund }
+            - { name: payum.action, factory: barion_payment, alias: notify }
 
-    SyliusBarionPaymentGateway\Action\CancelAuthorizationAction:
+    sylius_barion.payum.action.refund:
+        class: SyliusBarionPaymentGateway\Action\RefundAction
+        public: true
         tags:
-            - { name: payum.action, factory: barion_payment, alias: payum.action.cancel }
+            - { name: payum.action, factory: barion_payment, alias: refund }
+
+    sylius_barion.payum.action.cancel:
+        class: SyliusBarionPaymentGateway\Action\CancelAuthorizationAction
+        public: true
+        tags:
+            - { name: payum.action, factory: barion_payment, alias: cancel }
 
     SyliusBarionPaymentGateway\Menu\AdminMenuListener:
         tags:
