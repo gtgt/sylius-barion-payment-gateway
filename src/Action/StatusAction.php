@@ -13,7 +13,7 @@ use Sylius\Bundle\PayumBundle\Request\GetStatus;
 use Sylius\Component\Core\Model\PaymentInterface;
 use SyliusBarionPaymentGateway\Model\BarionPaymentStatus;
 
-final class StatusAction extends BaseApiAwareAction implements GatewayAwareInterface
+class StatusAction extends BaseApiAwareAction implements GatewayAwareInterface
 {
     use GatewayAwareTrait;
 
@@ -38,11 +38,11 @@ final class StatusAction extends BaseApiAwareAction implements GatewayAwareInter
 
         $details = ArrayObject::ensureArrayObject($payment->getDetails());
 
-        if (!empty($details['paymentId']) && $this->shouldPollRemoteState((string) ($details['status'] ?? ''))) {
+        if (!empty($details['paymentId']) && $this->shouldPollRemoteState($details['status'] ?? '')) {
             $this->pollRemoteState($details, $payment);
         }
 
-        $this->markRequestFromDetails($request, (string) ($details['status'] ?? BarionPaymentStatus::NEW));
+        $this->markRequestFromDetails($request, $details['status'] ?? BarionPaymentStatus::NEW);
     }
 
     public function supports($request): bool
@@ -64,7 +64,7 @@ final class StatusAction extends BaseApiAwareAction implements GatewayAwareInter
     private function pollRemoteState(ArrayObject $details, PaymentInterface $payment): void
     {
         try {
-            $response = $this->api->getPaymentState((string) $details['paymentId']);
+            $response = $this->api->getPaymentState($details['paymentId']);
 
             if ($response->RequestSuccessful) {
                 BarionStatusMapper::applyPaymentState($details, $response);

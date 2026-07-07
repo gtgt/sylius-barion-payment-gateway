@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
-final class ShopPaymentShowAction
+class ShopPaymentShowAction
 {
     public function __construct(
         private readonly PaymentRepositoryInterface $paymentRepository,

@@ -7,7 +7,7 @@ namespace SyliusBarionPaymentGateway;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-final class SyliusBarionPaymentGatewayPlugin extends Bundle
+class SyliusBarionPaymentGatewayPlugin extends Bundle
 {
     use SyliusPluginTrait;
 

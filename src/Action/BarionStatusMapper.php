@@ -12,7 +12,7 @@ use Barion\Models\Payment\TransactionDetailModel;
 use Barion\Models\Payment\TransactionResponseModel;
 use SyliusBarionPaymentGateway\Model\BarionPaymentStatus;
 
-final class BarionStatusMapper
+class BarionStatusMapper
 {
     public static function mapPaymentStatus(PaymentStatus $status): string
     {

@@ -19,7 +19,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 #[AsGatewayConfigurationType(type: 'barion_payment', label: 'sylius_barion.gateway_factory.barion_payment')]
 #[AsTaggedItem('form.type')]
-final class GatewayConfigType extends AbstractType
+class GatewayConfigType extends AbstractType
 {
     private const DEFAULT_ENV = 'test';
 
@@ -33,6 +33,7 @@ final class GatewayConfigType extends AbstractType
             }
 
             $data['env'] ??= self::DEFAULT_ENV;
+            $data['payum.translator'] = '@translator';
             $event->setData($data);
         });
 

@@ -8,7 +8,7 @@ use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Repository\PaymentRepositoryInterface;
 use SyliusBarionPaymentGateway\Doctrine\ORM\PaymentRepository;
 
-final class BarionPaymentResolver
+class BarionPaymentResolver
 {
     public function __construct(
         private readonly PaymentRepositoryInterface $paymentRepository,

@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Webmozart\Assert\Assert;
 
 #[AsNotifyPaymentProvider(priority: 0)]
-final class BarionNotifyPaymentProvider implements NotifyPaymentProviderInterface
+class BarionNotifyPaymentProvider implements NotifyPaymentProviderInterface
 {
     public function __construct(
         private readonly BarionPaymentResolver $barionPaymentResolver,

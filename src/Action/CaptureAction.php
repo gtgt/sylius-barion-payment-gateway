@@ -18,7 +18,7 @@ use Psr\Log\LoggerInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use SyliusBarionPaymentGateway\Model\BarionPaymentStatus;
 
-final class CaptureAction extends BaseApiAwareAction implements GatewayAwareInterface, GenericTokenFactoryAwareInterface
+class CaptureAction extends BaseApiAwareAction implements GatewayAwareInterface, GenericTokenFactoryAwareInterface
 {
     use GatewayAwareTrait;
 
@@ -48,7 +48,7 @@ final class CaptureAction extends BaseApiAwareAction implements GatewayAwareInte
             throw new \LogicException('Capture request must contain a payment model.');
         }
 
-        $status = (string) ($details['status'] ?? BarionPaymentStatus::NEW);
+        $status = $details['status'] ?? BarionPaymentStatus::NEW;
 
         if (BarionPaymentStatus::AUTHORIZED === $status) {
             $this->captureAuthorizedPayment($details, $payment);
@@ -103,14 +103,14 @@ final class CaptureAction extends BaseApiAwareAction implements GatewayAwareInte
                 $payment,
                 $payment->getAmount() / $divisor,
                 $token->getTargetUrl(),
-                (string) $details['notifyURL'],
+                $details['notifyURL'],
             );
 
             BarionStatusMapper::applyPrepareResponse($details, $response);
             $this->syncDetails($details, $payment);
 
             if (!empty($details['paymentUrl'])) {
-                throw new HttpRedirect((string) $details['paymentUrl']);
+                throw new HttpRedirect($details['paymentUrl']);
             }
 
             $details['status'] = BarionPaymentStatus::FAILED;
@@ -132,7 +132,7 @@ final class CaptureAction extends BaseApiAwareAction implements GatewayAwareInte
     private function pollPaymentState(ArrayObject $details, PaymentInterface $payment): void
     {
         try {
-            $response = $this->api->getPaymentState((string) $details['paymentId']);
+            $response = $this->api->getPaymentState($details['paymentId']);
 
             if ($response->RequestSuccessful) {
                 BarionStatusMapper::applyPaymentState($details, $response);
@@ -155,7 +155,7 @@ final class CaptureAction extends BaseApiAwareAction implements GatewayAwareInte
         }
 
         $transactions = $this->buildCaptureTransactions($details, $payment);
-        $response = $this->api->captureAuthorizedPayment((string) $details['paymentId'], $transactions);
+        $response = $this->api->captureAuthorizedPayment($details['paymentId'], $transactions);
 
         if ($response->RequestSuccessful) {
             $this->pollPaymentState($details, $payment);
@@ -175,7 +175,7 @@ final class CaptureAction extends BaseApiAwareAction implements GatewayAwareInte
         }
 
         $transactions = $this->buildCaptureTransactions($details, $payment);
-        $response = $this->api->finishReservation((string) $details['paymentId'], $transactions);
+        $response = $this->api->finishReservation($details['paymentId'], $transactions);
 
         if ($response->RequestSuccessful) {
             $this->pollPaymentState($details, $payment);

@@ -12,6 +12,7 @@ use Barion\Enumerations\PaymentStatus;
 use Barion\Enumerations\PaymentType;
 use Barion\Enumerations\UILocale;
 use Barion\Models\Common\ItemModel;
+use Barion\Models\Error\ApiErrorModel;
 use Barion\Models\Payment\CancelAuthorizationRequestModel;
 use Barion\Models\Payment\CancelAuthorizationResponseModel;
 use Barion\Models\Payment\CaptureRequestModel;
@@ -29,9 +30,12 @@ use Barion\Models\Refund\RefundRequestModel;
 use Barion\Models\Refund\RefundResponseModel;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
+use Sylius\Component\Core\Model\ShipmentInterface;
+use Sylius\Component\Shipping\Model\ShippingMethodInterface;
 use SyliusBarionPaymentGateway\Converter\AddressConverter;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class SyliusApi
+class SyliusApi
 {
     private const DEFAULT_PAYMENT_WINDOW = '00:30:00';
 
@@ -41,22 +45,23 @@ final class SyliusApi
 
     public function __construct(
         private readonly array $config,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
     public function getPosKey(): string
     {
-        return (string) ($this->config['pos_key'] ?? '');
+        return $this->config['pos_key'] ?? '';
     }
 
     public function getPayee(): string
     {
-        return (string) ($this->config['payee'] ?? '');
+        return $this->config['payee'] ?? '';
     }
 
     public function getEnvironment(): string
     {
-        return (string) ($this->config['env'] ?? 'test');
+        return $this->config['env'] ?? 'test';
     }
 
     public function getPaymentType(): PaymentType
@@ -85,7 +90,7 @@ final class SyliusApi
             paymentType: $paymentType,
             guestCheckoutAllowed: true,
             allowedFundingSources: $this->resolveFundingSources(),
-            paymentWindow: (string) ($this->config['payment_window'] ?? self::DEFAULT_PAYMENT_WINDOW),
+            paymentWindow: $this->config['payment_window'] ?? self::DEFAULT_PAYMENT_WINDOW,
             locale: $this->resolveLocale($order->getLocaleCode()),
             initiateRecurrence: (bool) ($this->config['initiate_recurrence'] ?? false),
             recurrenceId: $this->config['recurrence_id'] ?? null,
@@ -94,21 +99,21 @@ final class SyliusApi
             currency: $this->resolveCurrency($payment->getCurrencyCode()),
         );
 
-        $request->OrderNumber = (string) $payment->getId();
+        $request->OrderNumber = (string)$payment->getId();
         $request->PayerHint = $this->resolvePayerHint($order);
         $request->ShippingAddress = AddressConverter::toShippingAddress($order->getShippingAddress());
         $request->BillingAddress = AddressConverter::toBillingAddress($order->getBillingAddress() ?? $order->getShippingAddress());
 
         if (PaymentType::DelayedCapture === $paymentType) {
-            $request->DelayedCapturePeriod = (string) ($this->config['delayed_capture_period'] ?? self::DEFAULT_DELAYED_CAPTURE_PERIOD);
+            $request->DelayedCapturePeriod = $this->config['delayed_capture_period'] ?? self::DEFAULT_DELAYED_CAPTURE_PERIOD;
         }
 
         if (PaymentType::Reservation === $paymentType) {
-            $request->ReservationPeriod = (string) ($this->config['reservation_period'] ?? self::DEFAULT_RESERVATION_PERIOD);
+            $request->ReservationPeriod = $this->config['reservation_period'] ?? self::DEFAULT_RESERVATION_PERIOD;
         }
 
         $transaction = new PaymentTransactionModel();
-        $transaction->POSTransactionId = (string) $payment->getId();
+        $transaction->POSTransactionId = (string)$payment->getId();
         $transaction->Payee = $this->getPayee();
         $transaction->Total = $total;
         $transaction->AddItems($this->buildOrderItems($order, $payment->getCurrencyCode()));
@@ -139,7 +144,7 @@ final class SyliusApi
 
         foreach ($transactions as $transaction) {
             $captureTransaction = new TransactionToCaptureModel();
-            $captureTransaction->TransactionId = (string) $transaction['transactionId'];
+            $captureTransaction->TransactionId = $transaction['transactionId'];
             $captureTransaction->Total = (float) $transaction['total'];
             $request->AddTransaction($captureTransaction);
         }
@@ -160,7 +165,7 @@ final class SyliusApi
 
         foreach ($transactions as $transaction) {
             $finishTransaction = new TransactionToFinishModel();
-            $finishTransaction->TransactionId = (string) $transaction['transactionId'];
+            $finishTransaction->TransactionId = $transaction['transactionId'];
             $finishTransaction->Total = (float) $transaction['total'];
             $request->AddTransaction($finishTransaction);
         }
@@ -202,7 +207,7 @@ final class SyliusApi
 
         $sources = [];
         foreach ($configured as $source) {
-            $sources[] = FundingSourceType::from((string) $source);
+            $sources[] = FundingSourceType::from($source);
         }
 
         return $sources;
@@ -219,7 +224,7 @@ final class SyliusApi
 
     private function resolveLocale(?string $localeCode): UILocale
     {
-        $normalized = str_replace('_', '-', strtolower((string) $localeCode));
+        $normalized = str_replace('_', '-', strtolower($localeCode ?? ''));
 
         return match (true) {
             str_starts_with($normalized, 'hu') => UILocale::HU,
@@ -257,7 +262,9 @@ final class SyliusApi
      */
     private function buildOrderItems(OrderInterface $order, ?string $currencyCode): array
     {
+        $locale = $order->getLocaleCode();
         $divisor = $this->currencyDivisor($currencyCode);
+        $unitName = $this->translator->trans('sylius_barion.payment.unit.piece', [], 'messages', $locale);
         $items = [];
 
         foreach ($order->getItems() as $orderItem) {
@@ -265,7 +272,7 @@ final class SyliusApi
             $item->Name = $orderItem->getProductName();
             $item->Description = $orderItem->getVariantName();
             $item->Quantity = (float) $orderItem->getQuantity();
-            $item->Unit = 'piece';
+            $item->Unit = $unitName;
             $item->UnitPrice = $orderItem->getUnitPrice() / $divisor;
             $item->ItemTotal = $orderItem->getTotal() / $divisor;
             $item->SKU = $orderItem->getVariant()?->getCode();
@@ -276,15 +283,36 @@ final class SyliusApi
         $shippingTotal = $order->getShippingTotal();
         if ($shippingTotal > 0) {
             $shippingItem = new ItemModel();
-            $shippingItem->Name = 'Shipping';
+            $shippingItem->Name = $this->translator->trans('sylius.ui.shipping', [], 'messages', $locale);
+            $shippingItem->Description = $this->resolveShippingMethodName($order);
             $shippingItem->Quantity = 1.0;
-            $shippingItem->Unit = 'piece';
+            $shippingItem->Unit = $unitName;
             $shippingItem->UnitPrice = $shippingTotal / $divisor;
             $shippingItem->ItemTotal = $shippingTotal / $divisor;
             $items[] = $shippingItem;
         }
 
         return $items;
+    }
+
+    private function resolveShippingMethodName(OrderInterface $order): ?string
+    {
+        $shipment = $order->getShipments()->first();
+        if (!$shipment instanceof ShipmentInterface) {
+            return null;
+        }
+
+        $shippingMethod = $shipment->getMethod();
+        if (!$shippingMethod instanceof ShippingMethodInterface) {
+            return null;
+        }
+
+        $locale = $order->getLocaleCode();
+        if (null !== $locale) {
+            return $shippingMethod->getTranslation($locale)->getName();
+        }
+
+        return $shippingMethod->getName();
     }
 
     private function buildPaymentRequestId(PaymentInterface $payment): string
@@ -294,7 +322,7 @@ final class SyliusApi
 
     private function currencyDivisor(?string $currencyCode): float
     {
-        return match (strtoupper((string) $currencyCode)) {
+        return match (strtoupper($currencyCode ?? '')) {
             'HUF', 'JPY' => 1.0,
             default => 100.0,
         };
@@ -311,8 +339,8 @@ final class SyliusApi
 
         $messages = [];
         foreach ($errors as $error) {
-            if (is_object($error) && property_exists($error, 'ErrorCode')) {
-                $messages[] = sprintf('%s: %s', $error->ErrorCode, $error->Title ?? '');
+            if ($error instanceof ApiErrorModel) {
+                $messages[] = sprintf('[%s] %s: %s', $error->ErrorCode, $error->Title ?? '', $error->Description ?? '');
             }
         }
 

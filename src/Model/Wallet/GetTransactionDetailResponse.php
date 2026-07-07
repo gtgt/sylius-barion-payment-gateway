@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SyliusBarionPaymentGateway\Model\Wallet;
 
-final class GetTransactionDetailResponse
+class GetTransactionDetailResponse
 {
     /**
      * @param array<string, mixed> $detailInformation

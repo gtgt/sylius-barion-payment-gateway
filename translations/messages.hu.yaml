@@ -1,4 +1,7 @@
 sylius_barion:
+    payment:
+        unit:
+            piece: darab
     gateway_factory:
         barion_payment: Barion fizetés
     ui:

@@ -12,7 +12,7 @@ use Payum\Core\Request\GetCurrency;
 use Payum\Core\Request\Refund;
 use Sylius\Component\Core\Model\PaymentInterface;
 
-final class RefundAction extends BaseApiAwareAction implements GatewayAwareInterface
+class RefundAction extends BaseApiAwareAction implements GatewayAwareInterface
 {
     use GatewayAwareTrait;
 
@@ -40,14 +40,14 @@ final class RefundAction extends BaseApiAwareAction implements GatewayAwareInter
         }
 
         $response = $this->api->refundPayment(
-            (string) $details['paymentId'],
-            (string) $transaction['transactionId'],
-            (string) $transaction['posTransactionId'],
+            $details['paymentId'],
+            $transaction['transactionId'],
+            $transaction['posTransactionId'],
             $amount,
         );
 
         if ($response->RequestSuccessful) {
-            $state = $this->api->getPaymentState((string) $details['paymentId']);
+            $state = $this->api->getPaymentState($details['paymentId']);
             if ($state->RequestSuccessful) {
                 BarionStatusMapper::applyPaymentState($details, $state);
                 $payment->setDetails($details->getArrayCopy());

@@ -12,7 +12,7 @@ use Payum\Core\Request\Convert;
 use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
 use SyliusBarionPaymentGateway\Model\BarionPaymentStatus;
 
-final class ConvertPaymentAction implements ActionInterface
+class ConvertPaymentAction implements ActionInterface
 {
     /**
      * @param Convert $request

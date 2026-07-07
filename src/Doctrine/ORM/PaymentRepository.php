@@ -40,6 +40,6 @@ class PaymentRepository extends BasePaymentRepository
 
     private function jsonEncodedValuePattern(string $value): string
     {
-        return (string) json_encode($value, \JSON_THROW_ON_ERROR);
+        return json_encode($value, \JSON_THROW_ON_ERROR);
     }
 }

@@ -8,7 +8,7 @@ use Barion\Models\ThreeDSecure\BillingAddressModel;
 use Barion\Models\ThreeDSecure\ShippingAddressModel;
 use Sylius\Component\Core\Model\AddressInterface;
 
-final class AddressConverter
+class AddressConverter
 {
     public static function toShippingAddress(?AddressInterface $address): ?ShippingAddressModel
     {

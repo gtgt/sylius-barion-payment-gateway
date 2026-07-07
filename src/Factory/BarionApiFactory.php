@@ -9,16 +9,19 @@ use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use SyliusBarionPaymentGateway\Api\BarionWalletApi;
 use SyliusBarionPaymentGateway\SyliusApi;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class BarionApiFactory
+class BarionApiFactory
 {
     public function __construct(
         private readonly HttpClientInterface $httpClient,
+        private readonly TranslatorInterface $translator,
     ) {
     }
+
     public function createSyliusApiFromGatewayConfig(GatewayConfigInterface $gatewayConfig): SyliusApi
     {
-        return new SyliusApi($gatewayConfig->getConfig());
+        return new SyliusApi($gatewayConfig->getConfig(), $this->translator);
     }
 
     public function createSyliusApiFromPaymentMethod(PaymentMethodInterface $paymentMethod): SyliusApi
@@ -42,8 +45,8 @@ final class BarionApiFactory
 
         return new BarionWalletApi(
             $this->httpClient,
-            (string) ($config['pos_key'] ?? ''),
-            (string) ($config['env'] ?? 'test'),
+            $config['pos_key'] ?? '',
+            $config['env'] ?? 'test',
         );
     }
 }

@@ -1,4 +1,7 @@
 sylius_barion:
+    payment:
+        unit:
+            piece: piece
     gateway_factory:
         barion_payment: Barion Payment
     ui:

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SyliusBarionPaymentGateway\Model;
 
-final class BarionPaymentStatus
+class BarionPaymentStatus
 {
     public const NEW = 'new';
 

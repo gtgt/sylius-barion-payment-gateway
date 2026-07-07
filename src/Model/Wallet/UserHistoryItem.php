@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SyliusBarionPaymentGateway\Model\Wallet;
 
-final class UserHistoryItem
+class UserHistoryItem
 {
     public function __construct(
         public readonly string $id,
@@ -25,12 +25,12 @@ final class UserHistoryItem
     public static function fromArray(array $data): self
     {
         return new self(
-            (string) ($data['Id'] ?? ''),
-            (string) ($data['Type'] ?? ''),
-            isset($data['HappenedAtUtc']) ? (string) $data['HappenedAtUtc'] : null,
+            $data['Id'] ?? '',
+            $data['Type'] ?? '',
+            isset($data['HappenedAtUtc']) ? $data['HappenedAtUtc'] : null,
             isset($data['Amount']) ? (float) $data['Amount'] : 0.0,
-            (string) ($data['Currency'] ?? ''),
-            isset($data['Description']) ? (string) $data['Description'] : null,
+            $data['Currency'] ?? '',
+            isset($data['Description']) ? $data['Description'] : null,
             (bool) ($data['IsInProgress'] ?? false),
             isset($data['SourceAccount']) && is_array($data['SourceAccount'])
                 ? UserHistoryParticipant::fromArray($data['SourceAccount'])

@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
-final class WalletHistoryShowAction
+class WalletHistoryShowAction
 {
     public function __construct(
         private readonly BarionPaymentMethodProvider $barionPaymentMethodProvider,

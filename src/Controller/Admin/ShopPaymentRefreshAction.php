@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final class ShopPaymentRefreshAction
+class ShopPaymentRefreshAction
 {
     public function __construct(
         private readonly PaymentRepositoryInterface $paymentRepository,

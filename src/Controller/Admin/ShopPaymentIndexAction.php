@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
-final class ShopPaymentIndexAction
+class ShopPaymentIndexAction
 {
     private const GRID_ID = 'sylius_barion_plugin_shop_payment';
 

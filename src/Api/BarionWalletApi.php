@@ -9,7 +9,7 @@ use SyliusBarionPaymentGateway\Model\Wallet\GetUserHistoryResponse;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class BarionWalletApi
+class BarionWalletApi
 {
     private const API_URL_PROD = 'https://api.barion.com';
 

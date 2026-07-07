@@ -7,7 +7,7 @@ namespace SyliusBarionPaymentGateway\Provider;
 use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Component\Core\Repository\PaymentMethodRepositoryInterface;
 
-final class BarionPaymentMethodProvider
+class BarionPaymentMethodProvider
 {
     public function __construct(
         private readonly PaymentMethodRepositoryInterface $paymentMethodRepository,

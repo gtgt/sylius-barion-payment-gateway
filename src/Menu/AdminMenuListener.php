@@ -6,7 +6,7 @@ namespace SyliusBarionPaymentGateway\Menu;
 
 use Sylius\Bundle\UiBundle\Menu\Event\MenuBuilderEvent;
 
-final class AdminMenuListener
+class AdminMenuListener
 {
     public function buildMenu(MenuBuilderEvent $menuBuilderEvent): void
     {

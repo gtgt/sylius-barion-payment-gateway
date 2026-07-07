@@ -6,8 +6,9 @@ namespace SyliusBarionPaymentGateway;
 
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\GatewayFactory;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class SyliusPaymentGatewayFactory extends GatewayFactory
+class SyliusPaymentGatewayFactory extends GatewayFactory
 {
     protected function populateConfig(ArrayObject $config): void
     {
@@ -15,10 +16,19 @@ final class SyliusPaymentGatewayFactory extends GatewayFactory
             'payum.factory_name' => 'barion_payment',
             'payum.factory_title' => 'Barion Payment',
             'env' => 'test',
+            'payum.translator' => '@translator',
         ]);
 
-        $config['payum.api'] = static function (ArrayObject $config): SyliusApi {
-            return new SyliusApi($config->getArrayCopy());
+        $config['payum.api'] = function (ArrayObject $config): SyliusApi {
+            $translator = $config['payum.translator'];
+            if (!$translator instanceof TranslatorInterface) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Expected an instance of %s.',
+                    TranslatorInterface::class,
+                ));
+            }
+
+            return new SyliusApi($config->getArrayCopy(), $translator);
         };
     }
 }

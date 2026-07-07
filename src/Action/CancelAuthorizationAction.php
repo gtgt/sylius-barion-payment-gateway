@@ -11,7 +11,7 @@ use Payum\Core\GatewayAwareTrait;
 use Payum\Core\Request\Cancel;
 use Sylius\Component\Core\Model\PaymentInterface;
 
-final class CancelAuthorizationAction extends BaseApiAwareAction implements GatewayAwareInterface
+class CancelAuthorizationAction extends BaseApiAwareAction implements GatewayAwareInterface
 {
     use GatewayAwareTrait;
 
@@ -29,10 +29,10 @@ final class CancelAuthorizationAction extends BaseApiAwareAction implements Gate
             return;
         }
 
-        $response = $this->api->cancelAuthorization((string) $details['paymentId']);
+        $response = $this->api->cancelAuthorization($details['paymentId']);
 
         if ($response->RequestSuccessful) {
-            $state = $this->api->getPaymentState((string) $details['paymentId']);
+            $state = $this->api->getPaymentState($details['paymentId']);
             if ($state->RequestSuccessful) {
                 BarionStatusMapper::applyPaymentState($details, $state);
                 $payment->setDetails($details->getArrayCopy());

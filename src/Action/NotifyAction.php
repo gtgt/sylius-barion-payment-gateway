@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-final class NotifyAction extends BaseApiAwareAction implements GatewayAwareInterface
+class NotifyAction extends BaseApiAwareAction implements GatewayAwareInterface
 {
     use GatewayAwareTrait;
 
@@ -42,7 +42,7 @@ final class NotifyAction extends BaseApiAwareAction implements GatewayAwareInter
         }
 
         try {
-            $response = $this->api->getPaymentState((string) $details['paymentId']);
+            $response = $this->api->getPaymentState($details['paymentId']);
 
             if ($response->RequestSuccessful) {
                 BarionStatusMapper::applyPaymentState($details, $response);
